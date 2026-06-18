@@ -12,7 +12,8 @@ import {
   Check,
   Award,
   BookOpen,
-  Info
+  Info,
+  Sparkles
 } from 'lucide-react';
 
 import LoraTraceView from './components/LoraTraceView';
@@ -22,8 +23,9 @@ import SchedulerView from './components/SchedulerView';
 import DatasetSplitView from './components/DatasetSplitView';
 import PipelineDebugger from './components/PipelineDebugger';
 import ProductionArchitectureView from './components/ProductionArchitectureView';
+import InferencePlaygroundView from './components/InferencePlaygroundView';
 
-type TabType = 'debugger' | 'lora' | 'clipping' | 'precision' | 'scheduler' | 'split' | 'diagnostic' | 'architecture';
+type TabType = 'debugger' | 'lora' | 'clipping' | 'precision' | 'scheduler' | 'split' | 'playground' | 'diagnostic' | 'architecture';
 
 interface Question {
   id: number;
@@ -165,6 +167,7 @@ export default function App() {
               { id: 'precision', name: 'Ex 3: Dual Precision', icon: Binary, color: 'text-[#8A9A5B]' },
               { id: 'scheduler', name: 'Ex 4: Cosine Scheduler', icon: Gauge, color: 'text-[#8A9A5B]' },
               { id: 'split', name: 'Ex 5: Train / Val Split', icon: Columns, color: 'text-[#D9A34A]' },
+              { id: 'playground', name: 'Ex 6: Inference Playground', icon: Sparkles, color: 'text-[#3E6335]' },
               { id: 'diagnostic', name: 'Interactive Quiz Diagnostic', icon: HelpCircle, color: 'text-[#8A9A5B]' },
               { id: 'architecture', name: 'BP: Production Blueprint', icon: Info, color: 'text-[#8A9A5B]' },
             ].map((tab) => {
@@ -207,6 +210,7 @@ export default function App() {
             {activeTab === 'precision' && <MixedPrecisionView />}
             {activeTab === 'scheduler' && <SchedulerView />}
             {activeTab === 'split' && <DatasetSplitView />}
+            {activeTab === 'playground' && <InferencePlaygroundView />}
             {activeTab === 'architecture' && <ProductionArchitectureView />}
 
             {/* Diagnostic workbook Workspace view */}
