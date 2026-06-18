@@ -21,8 +21,9 @@ import MixedPrecisionView from './components/MixedPrecisionView';
 import SchedulerView from './components/SchedulerView';
 import DatasetSplitView from './components/DatasetSplitView';
 import PipelineDebugger from './components/PipelineDebugger';
+import ProductionArchitectureView from './components/ProductionArchitectureView';
 
-type TabType = 'debugger' | 'lora' | 'clipping' | 'precision' | 'scheduler' | 'split' | 'diagnostic';
+type TabType = 'debugger' | 'lora' | 'clipping' | 'precision' | 'scheduler' | 'split' | 'diagnostic' | 'architecture';
 
 interface Question {
   id: number;
@@ -165,6 +166,7 @@ export default function App() {
               { id: 'scheduler', name: 'Ex 4: Cosine Scheduler', icon: Gauge, color: 'text-[#8A9A5B]' },
               { id: 'split', name: 'Ex 5: Train / Val Split', icon: Columns, color: 'text-[#D9A34A]' },
               { id: 'diagnostic', name: 'Interactive Quiz Diagnostic', icon: HelpCircle, color: 'text-[#8A9A5B]' },
+              { id: 'architecture', name: 'BP: Production Blueprint', icon: Info, color: 'text-[#8A9A5B]' },
             ].map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -205,6 +207,7 @@ export default function App() {
             {activeTab === 'precision' && <MixedPrecisionView />}
             {activeTab === 'scheduler' && <SchedulerView />}
             {activeTab === 'split' && <DatasetSplitView />}
+            {activeTab === 'architecture' && <ProductionArchitectureView />}
 
             {/* Diagnostic workbook Workspace view */}
             {activeTab === 'diagnostic' && (
