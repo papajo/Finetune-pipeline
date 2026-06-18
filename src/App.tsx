@@ -13,7 +13,8 @@ import {
   Award,
   BookOpen,
   Info,
-  Sparkles
+  Sparkles,
+  Mic2
 } from 'lucide-react';
 
 import LoraTraceView from './components/LoraTraceView';
@@ -24,8 +25,9 @@ import DatasetSplitView from './components/DatasetSplitView';
 import PipelineDebugger from './components/PipelineDebugger';
 import ProductionArchitectureView from './components/ProductionArchitectureView';
 import InferencePlaygroundView from './components/InferencePlaygroundView';
+import LingoBootcampView from './components/LingoBootcampView';
 
-type TabType = 'debugger' | 'lora' | 'clipping' | 'precision' | 'scheduler' | 'split' | 'playground' | 'diagnostic' | 'architecture';
+type TabType = 'debugger' | 'lora' | 'clipping' | 'precision' | 'scheduler' | 'split' | 'playground' | 'bootcamp' | 'diagnostic' | 'architecture';
 
 interface Question {
   id: number;
@@ -168,6 +170,7 @@ export default function App() {
               { id: 'scheduler', name: 'Ex 4: Cosine Scheduler', icon: Gauge, color: 'text-[#8A9A5B]' },
               { id: 'split', name: 'Ex 5: Train / Val Split', icon: Columns, color: 'text-[#D9A34A]' },
               { id: 'playground', name: 'Ex 6: Inference Playground', icon: Sparkles, color: 'text-[#3E6335]' },
+              { id: 'bootcamp', name: 'Ex 7: Speaker Jargon Bootcamp', icon: Mic2, color: 'text-[#3E6335]' },
               { id: 'diagnostic', name: 'Interactive Quiz Diagnostic', icon: HelpCircle, color: 'text-[#8A9A5B]' },
               { id: 'architecture', name: 'BP: Production Blueprint', icon: Info, color: 'text-[#8A9A5B]' },
             ].map((tab) => {
@@ -211,6 +214,7 @@ export default function App() {
             {activeTab === 'scheduler' && <SchedulerView />}
             {activeTab === 'split' && <DatasetSplitView />}
             {activeTab === 'playground' && <InferencePlaygroundView />}
+            {activeTab === 'bootcamp' && <LingoBootcampView />}
             {activeTab === 'architecture' && <ProductionArchitectureView />}
 
             {/* Diagnostic workbook Workspace view */}
