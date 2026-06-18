@@ -7,7 +7,6 @@ export default function GradClipView() {
   // Current raw gradient vector elements
   const [vector, setVector] = useState<{ x: number; y: number }>({ x: 2.2, y: 1.8 });
   const [history, setHistory] = useState<Array<{ step: number; x: number; y: number; norm: number; after: number; isClipped: boolean }>>([]);
-  const [stepCounter, setStepCounter] = useState<number>(1);
 
   // Compute L2 Norm (Euclidean / Euclidean distance length of vector)
   const norm = Math.sqrt(vector.x * vector.x + vector.y * vector.y);
@@ -29,16 +28,32 @@ export default function GradClipView() {
   };
 
   const logUpdate = () => {
-    const newRecord = {
-      step: stepCounter,
-      x: vector.x,
-      y: vector.y,
-      norm: parseFloat(norm.toFixed(3)),
-      after: parseFloat(clippedNorm.toFixed(3)),
-      isClipped: isClipped,
-    };
-    setHistory(prev => [newRecord, ...prev].slice(0, 5));
-    setStepCounter(prev => prev + 1);
+    const freshNorm = parseFloat(norm.toFixed(3));
+    const freshAfter = parseFloat(clippedNorm.toFixed(3));
+    setHistory(prev => {
+      // Check for duplicate logs of identical values to prevent double-insertions (e.g. in React StrictMode on mount)
+      if (
+        prev.length > 0 &&
+        prev[0].x === vector.x &&
+        prev[0].y === vector.y &&
+        prev[0].norm === freshNorm &&
+        prev[0].after === freshAfter &&
+        prev[0].isClipped === isClipped
+      ) {
+        return prev;
+      }
+      const lastStep = prev.length > 0 ? prev[0].step : 0;
+      const nextStep = lastStep + 1;
+      const newRecord = {
+        step: nextStep,
+        x: vector.x,
+        y: vector.y,
+        norm: freshNorm,
+        after: freshAfter,
+        isClipped: isClipped,
+      };
+      return [newRecord, ...prev].slice(0, 5);
+    });
   };
 
   useEffect(() => {
