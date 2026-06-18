@@ -1,0 +1,6 @@
+{
+  "name": "LoRA and Training Pipeline Guide",
+  "description": "An interactive laboratory simulation and visual guide for understanding LoRA, Gradient Clipping, Mixed Precision, Cosine LR Schedulers, and Validation Split.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
