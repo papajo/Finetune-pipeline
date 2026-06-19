@@ -26,8 +26,9 @@ import PipelineDebugger from './components/PipelineDebugger';
 import ProductionArchitectureView from './components/ProductionArchitectureView';
 import InferencePlaygroundView from './components/InferencePlaygroundView';
 import LingoBootcampView from './components/LingoBootcampView';
+import LabGuideView from './components/LabGuideView';
 
-type TabType = 'debugger' | 'lora' | 'clipping' | 'precision' | 'scheduler' | 'split' | 'playground' | 'bootcamp' | 'diagnostic' | 'architecture';
+type TabType = 'guide' | 'debugger' | 'lora' | 'clipping' | 'precision' | 'scheduler' | 'split' | 'playground' | 'bootcamp' | 'diagnostic' | 'architecture';
 
 interface Question {
   id: number;
@@ -39,7 +40,7 @@ interface Question {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<TabType>('debugger');
+  const [activeTab, setActiveTab] = useState<TabType>('guide');
 
   // Flashcard Diagnostic Workbook
   const quizQuestions: Question[] = [
@@ -163,6 +164,7 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex gap-1.5 overflow-x-auto py-2 no-scrollbar border-t border-[#E5E3D8] select-none">
             {[
+              { id: 'guide', name: '📖 Lab Guide & Advisor', icon: BookOpen, color: 'text-[#3E6335]' },
               { id: 'debugger', name: 'Training IDE Log Debugger', icon: Monitor, color: 'text-[#8A9A5B]' },
               { id: 'lora', name: 'Ex 1: LoRA Path Math', icon: Layers, color: 'text-[#8A9A5B]' },
               { id: 'clipping', name: 'Ex 2: Gradient Clipping', icon: ShieldAlert, color: 'text-[#D9A34A]' },
@@ -207,6 +209,7 @@ export default function App() {
             transition={{ duration: 0.25 }}
             className="w-full"
           >
+            {activeTab === 'guide' && <LabGuideView />}
             {activeTab === 'debugger' && <PipelineDebugger />}
             {activeTab === 'lora' && <LoraTraceView />}
             {activeTab === 'clipping' && <GradClipView />}

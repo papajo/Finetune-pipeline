@@ -63,9 +63,9 @@ interface ConceptQuiz {
   subtitle: string;
   icon: string;
   levels: {
-    layperson: LevelQuestion;
-    enthusiast: LevelQuestion;
-    expert: LevelQuestion;
+    layperson: LevelQuestion[];
+    enthusiast: LevelQuestion[];
+    expert: LevelQuestion[];
   };
 }
 
@@ -181,6 +181,7 @@ export default function LingoBootcampView() {
   ];
 
   // Concept Quizzes at Different Levels (Layperson, Enthusiast, Expert)
+  // Concept Quizzes at Different Levels (Layperson, Enthusiast, Expert)
   const conceptQuizzes: ConceptQuiz[] = [
     {
       id: 'lora',
@@ -188,121 +189,304 @@ export default function LingoBootcampView() {
       subtitle: 'Understanding frozen weights and low-rank matrices A & B',
       icon: '🔢',
       levels: {
-        layperson: {
-          question: 'When describing Low-Rank Adaptation (LoRA) to an investor or non-technical user, which analogy is most appropriate?',
-          options: [
-            'It is like deleting half of the dictionary to make books load faster on laptops.',
-            'It is like placing a transparent sketchpad template over a large, frozen architectural blueprint—altering only small details rather than redrafting the entire building from scratch.',
-            'It acts like high-yield file compression (like a zip file) that shrinks deep models down to plain spreadsheets.'
-          ],
-          correctIndex: 1,
-          explanation: 'LoRA leaves the huge multi-billion parameter base model locked ("frozen blueprint") and only teaches lightweight auxiliary adapter matrices ("trace paper overlay") representing custom skills.',
-          proSpeakerTip: 'Use terms like "parameter-efficient alignment" and "lowering high-throughput operational expenditure" to capture both engineering and commercial authority.'
-        },
-        enthusiast: {
-          question: 'How does the LoRA Rank parameter (r) control the dimensions and capacity of matrices A and B mathematically?',
-          options: [
-            'r defines the number of parallel GPU threads designated to handle weight division steps.',
-            'r controls the inner bottleneck dimension. Matrices A and B have dimensions d×r and r×k. A higher r adds representation capacity, but increases parameter size and risk of overfitting.',
-            'r is a secondary division factor that reduces training learning rates linearly as training advances.'
-          ],
-          correctIndex: 1,
-          explanation: 'The weight update delta is factorized into matrices A and B of rank r. r is the shared bottleneck dimension; if r=8, matrices retain fewer trainable parameters than r=32.',
-          proSpeakerTip: 'Quote: "We optimized the parameter footprint by scaling the inner bottleneck dimension r to establish structured trade-offs between validation loss and VRAM occupancy."'
-        },
-        expert: {
-          question: 'What is the correct mathematical update equation applied to raw model weight representations inside a LoRA-equipped layer during a forward pass?',
-          options: [
-            'Y = W₀x + (α/r) * BAmul(x)',
-            'Y = W₀(x) * (r/α) + BA(x)',
-            'Y = (W₀ + BA)x * log(α / r)'
-          ],
-          correctIndex: 0,
-          explanation: 'The output is the frozen weight dot product (W₀x) added to the adapter branch pass scaled by are constant multiplier (α/r) multiplied by BA weights (the low-rank product).',
-          proSpeakerTip: 'Deliver this with precision: "By anchoring the learning trajectory using a static scaling ratio of alpha over rank, we decoupled weight updates from sensitivity to rank variations during hyperparameter exploration."'
-        }
+        layperson: [
+          {
+            question: 'What is LoRA mainly trying to do?',
+            options: [
+              'Make the model bigger',
+              'Train only a small part of the model',
+              'Delete old training data',
+              'Increase the number of layers'
+            ],
+            correctIndex: 1,
+            explanation: 'Low-Rank Adaptation (LoRA) freezes the pre-trained weights and adds small trainable rank decomposition layers.',
+            proSpeakerTip: 'We bypass full-parameter registration by introducing factorized weight delta pathways.'
+          },
+          {
+            question: 'Why is LoRA useful?',
+            options: [
+              'It makes training slower',
+              'It helps train models with fewer resources',
+              'It removes the need for data',
+              'It prevents the model from generating text'
+            ],
+            correctIndex: 1,
+            explanation: 'LoRA slashes trainable parameters and reduces optimizer states memory footprint (VRAM) by up to 99%.',
+            proSpeakerTip: 'This enables localized model optimization on commodity graphics cards.'
+          }
+        ],
+        enthusiast: [
+          {
+            question: 'In LoRA, what happens to the original model weights?',
+            options: [
+              'They are rewritten every step',
+              'They are usually frozen',
+              'They are removed',
+              'They are doubled'
+            ],
+            correctIndex: 1,
+            explanation: 'The pre-trained base model backbone parameters are kept frozen to lock in general knowledge and prevent catastrophic forgetting.',
+            proSpeakerTip: 'We preserve general pre-trained parameters in frozen states while isolating adaptation delta weights.'
+          },
+          {
+            question: 'What do the low-rank matrices in LoRA learn?',
+            options: [
+              'A full replacement for the model',
+              'A small update to the original weights',
+              'The tokenizer rules',
+              'The validation split'
+            ],
+            correctIndex: 1,
+            explanation: 'Matrices A and B learn a low-rank delta update (ΔW) which is scaled and added to the original weights during execution.',
+            proSpeakerTip: 'The low-rank matrices product approximates the true full-rank optimization updates gradient delta.'
+          },
+          {
+            question: 'What does the rank r control?',
+            options: [
+              'How many layers exist in the model',
+              'The size/capacity of the LoRA adapter',
+              'The batch size',
+              'The optimizer type'
+            ],
+            correctIndex: 1,
+            explanation: 'Rank r determines the inner bottleneck dimension of the adaptor matrices, regulating capacity and memory.',
+            proSpeakerTip: 'We balance rank r to establish a robust trade-off between validation loss convergence and matrix VRAM occupancy.'
+          }
+        ],
+        expert: [
+          {
+            question: 'Why is LoRA often described as a low-rank reparameterization?',
+            options: [
+              'It changes attention masks only',
+              'It constrains the weight update to lie in a low-dimensional subspace',
+              'It eliminates the base model’s linear layers',
+              'It replaces optimization with inference-time heuristics'
+            ],
+            correctIndex: 1,
+            explanation: 'LoRA exploits the hypothesis that weight change matrices live on a lower intrinsic dimension, parameterizing updates via active bottlenecks.',
+            proSpeakerTip: 'This structural constraint enforces target regularization, preventing high-rank noise memorization.'
+          },
+          {
+            question: 'What is the practical effect of freezing the backbone and training only LoRA parameters?',
+            options: [
+              'It increases the full-rank optimization cost',
+              'It reduces trainable parameter count and memory footprint',
+              'It prevents gradient flow entirely',
+              'It changes tokenization behavior'
+            ],
+            correctIndex: 1,
+            explanation: 'Freezing backbone layers bypasses storing 1st and 2nd optimizer momentum configurations (such as in AdamW) for unselected weights, massively capping footprint.',
+            proSpeakerTip: 'Decoupling optimizer states through selective param freezes optimizes global storage throughput.'
+          }
+        ]
       }
     },
     {
       id: 'clipping',
       title: '⚡ Gradient Bounds & Norm Clipping',
-      subtitle: 'Navigating optimization trajectories and non-convex curves',
+      subtitle: 'Managing optimization stability and non-convex curves',
       icon: '⚡',
       levels: {
-        layperson: {
-          question: 'Why in simple terms does a deep neural network training script require a "Gradient Clip"?',
-          options: [
-            'To cut off long sentences, forcing the AI to output very concise answers.',
-            'Like a dynamic safety bumper on a bumper car, it prevents heavy sudden mathematical surges from knocking the trained model off the path and corrupting memory.',
-            'To limit the GPU electric power consumption so it does not overheat.'
-          ],
-          correctIndex: 1,
-          explanation: 'Without clipping, sudden spikes in error feedback calculations ("exploding gradients") trigger extreme changes in weights, immediately breaking the existing learned concepts.',
-          proSpeakerTip: 'Describe it on stage as: "A key structural guardrail ensuring numerical optimization stability across highly chaotic error manifolds."'
-        },
-        enthusiast: {
-          question: 'What is the principal benefit of computing global Gradient Norm (L2) clipping versus simple Gradient Value clipping?',
-          options: [
-            'Global L2 norm clipping scales all coordinate dimensions down proportionally, preserving gradient vector direction, while value clipping truncates coordinates independently, biasing the step direction.',
-            'Value clipping is incredibly slow to compute on GPU Tensor cores compared to norm clipping.',
-            'L2 norm clipping is only valid on bfloat16 models while value clipping requires float32.'
-          ],
-          correctIndex: 0,
-          explanation: 'Norm clipping scale the global gradient vector down as a unit when its length exceeds a threshold. Value clipping cuts individual coordinate dimensions at static bounds, warping the gradient direction.',
-          proSpeakerTip: 'Tell your audience: "We enforced structural gradient norm containment utilizing global L2 benchmarks to ensure mathematical directional integrity during high-loss curvature intervals."'
-        },
-        expert: {
-          question: 'During Multi-GPU Distributed Data Parallel (DDP) iteration, how must the global gradient norm clip threshold be structured to ensure mathematical equivalence to single-GPU steps?',
-          options: [
-            'Each training node calculations its local norm independently and applies local scaling, ignoring other GPUs.',
-            'An All-Reduce operation must aggregate the squared gradients across all model parameters and nodes, calculate the unified global L2 norm, and scale variables globally prior to local optimizer stepping.',
-            'The learning rate is divided by the number of active GPU worker cards to bypass norm synchronization bottlenecks.'
-          ],
-          correctIndex: 1,
-          explanation: 'Because a unified global norm is computed over public variables, all GPUs must communicate and synchronize using collective parallel structures (All-Reduce) before adjusting local optimizer states.',
-          proSpeakerTip: 'Present it clearly: "By implementing a global All-Reduce synchronization on the L2 gradient accumulation across distinct nodes, we bypassed local step divergence and guaranteed deterministic training."'
-        }
+        layperson: [
+          {
+            question: 'What does gradient clipping do?',
+            options: [
+              'Makes gradients disappear completely',
+              'Prevents updates from getting too large',
+              'Adds more data',
+              'Speeds up tokenization'
+            ],
+            correctIndex: 1,
+            explanation: 'Gradient clipping restricts step updates to a specified max boundary to prevent extreme mathematical surges.',
+            proSpeakerTip: 'Enforce L2 norm bounds to limit volatile step deviations under sudden error-signal surges.'
+          },
+          {
+            question: 'Why is it useful?',
+            options: [
+              'It helps keep training stable',
+              'It makes the model smaller',
+              'It removes the optimizer',
+              'It turns off validation'
+            ],
+            correctIndex: 0,
+            explanation: 'It shields model parameters from exploding weight variance which would immediately corrupt previously learned knowledge.',
+            proSpeakerTip: 'A vital defensive optimization metric to ensure convergent trajectories across non-convex loss surfaces.'
+          }
+        ],
+        enthusiast: [
+          {
+            question: 'When should gradient clipping usually happen?',
+            options: [
+              'Before forward pass',
+              'After backward pass, before optimizer step',
+              'After saving the model',
+              'Before loading data'
+            ],
+            correctIndex: 1,
+            explanation: 'Gradient calculations happen during backward pass, so we must inspect and clip values right after backprop and prior to updating weights.',
+            proSpeakerTip: 'Apply norm clipping immediately post-backward pass, aligning the unscaled vector before the step call.'
+          },
+          {
+            question: 'What problem does gradient clipping help prevent?',
+            options: [
+              'Vanishing inputs',
+              'Exploding gradients',
+              'Token mismatch',
+              'Overfitting always'
+            ],
+            correctIndex: 1,
+            explanation: 'In deep networks, backpropagated gradients can multiply exponentially, triggering NaN weights. Clipping caps the total magnitude.',
+            proSpeakerTip: 'Clipping mitigates gradient explosion risk across deep recurrence or attention chains.'
+          },
+          {
+            question: 'In FP16 training, what extra step is needed before clipping?',
+            options: [
+              'Resize the dataset',
+              'Unscale gradients',
+              'Rebuild the model',
+              'Lower the batch size'
+            ],
+            correctIndex: 1,
+            explanation: 'Because standard mixed-precision multiplies loss to stay in bounds, gradients are scaled and must be returned to true magnitudes before correct clipping calculation.',
+            proSpeakerTip: 'Unscale gradients from the GradScaler context prior to norm evaluations to yield accurate clipping thresholds.'
+          }
+        ],
+        expert: [
+          {
+            question: 'Why must gradients be unscaled before norm clipping in AMP FP16 training?',
+            options: [
+              'To preserve optimizer momentum only',
+              'Because clipping thresholds are defined on true gradient magnitudes, not scaled values',
+              'To avoid modifying the loss function',
+              'Because the scheduler requires it'
+            ],
+            correctIndex: 1,
+            explanation: 'If clipping is run on scaled gradients, the effective thresholds are shifted artificially high, triggering severe over-clipping and ruining step accuracy.',
+            proSpeakerTip: 'Executing clipping directly on scaled variables is completely invalid, because scaling magnitudes misalign the threshold boundaries.'
+          },
+          {
+            question: 'What is the main tradeoff of aggressive gradient clipping?',
+            options: [
+              'It always improves convergence',
+              'It may stabilize training but distort the true update direction/magnitude',
+              'It eliminates the need for backprop',
+              'It increases model depth'
+            ],
+            correctIndex: 1,
+            explanation: 'Setting clip limits too small trims structural updates too early, distorting step vectors and flattening or stalling the convergence path.',
+            proSpeakerTip: 'Ensure max_norm bounds remain loose enough to restrict catastrophic surges without dampening critical update direction details.'
+          }
+        ]
       }
     },
     {
       id: 'precision',
-      title: '💻 Dual Precision & Loss Scaling',
+      title: '💻 Mixed Precision Computing',
       subtitle: 'Managing numeric limits inside FP16 / BF16 formats',
       icon: '💻',
       levels: {
-        layperson: {
-          question: 'What is the main user value of training a model using "Mixed Precision"?',
-          options: [
-            'It allows two people to train the same model simultaneously from different computers.',
-            'It operates like sketching quick drafts with thick crayons (cheap half-precision math) and only using expensive narrow ink pens (FP32) for the master records, reducing memory and cutting time in half.',
-            'It combines text and image training together so the AI understands charts.'
-          ],
-          correctIndex: 1,
-          explanation: 'Heavy matrix multiplications are computed in faster 16-bit registers (FP16 or BF16) to leverage GPU acceleration, while sensitive calculations (parameters, loss metrics, optimizers) are held in resilient 32-bit float types.',
-          proSpeakerTip: 'State: "Mixed precision doubles Tensor-core throughput and slashes our graphics card VRAM overhead by half with zero loss in training accuracy."'
-        },
-        enthusiast: {
-          question: 'Why is Google/NVIDIA’s bfloat16 (BF16) format structural superior to standard FP16 for neural optimization?',
-          options: [
-            'BF16 allocates more bits to the mantissa, ensuring high spelling accuracy.',
-            'BF16 shares the exact same exponent size (8 bits) as FP32, giving it the same dynamic range. This naturally avoids numeric underflow or overflow, bypassing the need for complex dynamic loss scale scripts.',
-            'BF16 consumes exactly 8 bits of memory whereas FP16 consumes 16 bits.'
-          ],
-          correctIndex: 1,
-          explanation: 'BF16 matches FP32 exponent limits, meaning values do not overflow easily. Standard FP16 exponent is smaller (5 bits), which regularly triggers numeric underflow without dynamic scaling helper rules.',
-          proSpeakerTip: 'Mention: "By relying on native BF16 architectures, we eliminated dynamic loss scaler calibration, achieving pristine convergence paths with no underflow anomalies."'
-        },
-        expert: {
-          question: 'How exactly does a Dynamic Loss Scaler function in FP16 contexts to resolve gradient underflow during backward passes?',
-          options: [
-            'It multiplies weights directly by 65,536 during model load times, then divides them during final inference cycles.',
-            'The loss is multiplied by a scale factor S. Gradients are computed in FP16 safely shifted within dynamic limits. Prior to updating parameters, gradients are unscaled back (g/S). If an Inf/NaN gradient is recorded, the step is discarded, S is reduced, and the process continues.',
-            'It matches learning rates to standard decay functions based entirely on backpropagation batch size limits.'
-          ],
-          correctIndex: 1,
-          explanation: 'Gradient underflow happens when small gradient values land below standard FP16 limits (6.10e-5). Scaling the loss shifts derivatives up into range, then unscaling them before weights update ensures numerical correctness.',
-          proSpeakerTip: 'Assert: "We countered numerical truncation in standard FP16 pipelines by wrapping backward computations in a dynamic loss scaling loop, actively monitoring CUDA flags for gradient overflow."'
-        }
+        layperson: [
+          {
+            question: 'Why use mixed precision?',
+            options: [
+              'To make training faster and use less memory',
+              'To change the dataset',
+              'To remove the need for a GPU',
+              'To increase the vocabulary size'
+            ],
+            correctIndex: 0,
+            explanation: 'Using lower precision formats (16-bit instead of 32-bit) speeds up computations and reduces active VRAM requirements.',
+            proSpeakerTip: 'We accelerate matrix multiplication throughput on GPU tensor registers with excellent memory optimization ratios.'
+          },
+          {
+            question: 'What are common mixed precision types?',
+            options: [
+              'JPG and PNG',
+              'FP16 and BF16',
+              'CSV and JSON',
+              'SGD and Adam'
+            ],
+            correctIndex: 1,
+            explanation: 'Semi-precision formats like Float16 and Brain Float 16 represent the industry standards for neural network hardware calculations.',
+            proSpeakerTip: 'Both formats represent custom 16-bit floating point implementations optimized for high-acceleration matrix processing.'
+          }
+        ],
+        enthusiast: [
+          {
+            question: 'Which mixed precision mode usually needs GradScaler?',
+            options: [
+              'BF16',
+              'FP16',
+              'Float64',
+              'Int8'
+            ],
+            correctIndex: 1,
+            explanation: 'FP16 has a narrow dynamic range. Low-magnitude gradients easily underflow, registering as pure zeros, so a Loss Scaler is required.',
+            proSpeakerTip: 'GradScaler is essential in FP16 pipelines to counter dynamic representation underflow.'
+          },
+          {
+            question: 'What does autocast do?',
+            options: [
+              'Automatically saves checkpoints',
+              'Runs selected operations in lower precision',
+              'Converts labels to integers',
+              'Clips gradients'
+            ],
+            correctIndex: 1,
+            explanation: 'Autocast routes specific layers (matrix multiplication) through ultra-fast 16-bit execution while keeping sensitive operations (loss, normalization) in Float32.',
+            proSpeakerTip: 'We rely on autocast to selectively apply reduced precision matrices without sacrificing global numerical correctness.'
+          },
+          {
+            question: 'Why is BF16 often more stable than FP16?',
+            options: [
+              'It has a larger exponent range',
+              'It uses less memory than zero',
+              'It removes all rounding',
+              'It disables backprop'
+            ],
+            correctIndex: 0,
+            explanation: 'BF16 allocates 8 bits to the exponent (matching FP32 range), eliminating underflow/overflow risks without requiring loss scalers.',
+            proSpeakerTip: 'By inheriting FP32 exponent parameters, BF16 guarantees native convergence stability.'
+          }
+        ],
+        expert: [
+          {
+            question: 'What is the main numerical advantage of BF16 over FP16?',
+            options: [
+              'Larger mantissa',
+              'Larger exponent range, improving dynamic range',
+              'Exact arithmetic',
+              'No need for matrix multiplication'
+            ],
+            correctIndex: 1,
+            explanation: 'While FP16 limits high-magnitude steps, BF16 mirrors FP32 exponent scale (8-bit), perfectly capturing wide parameter updates.',
+            proSpeakerTip: 'BF16 trade-offs relative mantissa precision to maintain wide dynamic range parameters natively.'
+          },
+          {
+            question: 'In AMP FP16 training, why is dynamic loss scaling used?',
+            options: [
+              'To increase batch size directly',
+              'To reduce gradient underflow risk during backpropagation',
+              'To avoid using CUDA',
+              'To make validation faster'
+            ],
+            correctIndex: 1,
+            explanation: 'Dynamic loss scaling multiplies active loss prior to backward passes, moving fractional updates up to land above FP16 representational minimum limits.',
+            proSpeakerTip: 'Scaling prevents micro-gradients from rounding down to zero during chain-rule calculations.'
+          },
+          {
+            question: 'What is a correct inference about autocast?',
+            options: [
+              'It changes model architecture permanently',
+              'It selectively casts ops to reduced precision while preserving numerically sensitive ops in higher precision',
+              'It replaces the optimizer',
+              'It disables training mode'
+            ],
+            correctIndex: 1,
+            explanation: 'Autocast runs linear/attention weights in FP16 or BF16 for speed, but executes stable non-linear calculations (Softmax, layer norm) in absolute FP32.',
+            proSpeakerTip: 'Autocast leverages hybrid representation paths, ensuring performance speedups with no numerical regression.'
+          }
+        ]
       }
     },
     {
@@ -311,39 +495,96 @@ export default function LingoBootcampView() {
       subtitle: 'Smoothing convergence curves over multi-epoch runs',
       icon: '📈',
       levels: {
-        layperson: {
-          question: 'Why does an AI model benefit from a "Linear learning rate warmup" at the start of optimizer steps?',
-          options: [
-            'To warm up the physical computer fans so that chips do not struggle under initial load spikes.',
-            'Like driving a heavy train slowly out of a busy station to prevent wheels from spinning, a warmup starts training with small steps to let initial parameters adapt before running at high speeds.',
-            'To download the dataset into RAM over a split period.'
-          ],
-          correctIndex: 1,
-          explanation: 'Warmup incrementally increases step scale. Because new adapter weights start near-zero and starting feedback calculations are highly volatile, safe initial steps keep training on track.',
-          proSpeakerTip: 'Pitch it as: "An essential phase to navigate high initial variance and prevent early weight deterioration on highly skewed clinical sets."'
-        },
-        enthusiast: {
-          question: 'What does a "Cosine Annealing" learning rate scheduler accomplish over training epochs?',
-          options: [
-            'It decays the step size smoothly down to near-zero along a cosine curve. This permits large early steps for fast discovery, and ultra-fine micro-adjustments as weights approach global minima.',
-            'It dynamically fits validation loss curves directly onto a trigonometry graph.',
-            'It forces the model token generation rate to cycle back and forth to keep attention blocks active.'
-          ],
-          correctIndex: 0,
-          explanation: 'Decaying the learning rate along a cosine curve lets optimization stabilize as training moves to final epochs, allowing weights to settle within dense local minima.',
-          proSpeakerTip: 'Say: "We implemented a Cosine Annealing decay profile to foster asymptotic convergence and prevent optimization trajectory bounce during terminal training iterations."'
-        },
-        expert: {
-          question: 'In non-convex loss environments with high saddle point density, how does a cyclic cosine scheduler with warm-restarts improve model generalization?',
-          options: [
-            'Periodic learning rate spikes help the optimizer escape shallow, over-memorized local basins (saddle points), forcing exploration of broader, flatter minimums which generalize better to test validation splits.',
-            'Warm-restarts recalculate the model attention registers using dynamic second-order Hessian estimations.',
-            'By resetting training data shuffling parameters to default values whenever learning rate approaches zero.'
-          ],
-          correctIndex: 0,
-          explanation: 'Cyclic spikes in learning rate shake the optimizer state out of narrow, overfit basins. Flat basins generalize better to unseen validations because slight test distribution shifts do not degrade predictions.',
-          proSpeakerTip: 'Expound with power: "Employing cyclic cosine schedules with sharp warm-restarts enabled our gradient vectors to escape sub-optimal local basins, facilitating generalizable convergence on out-of-distribution holdouts."'
-        }
+        layperson: [
+          {
+            question: 'What does a learning-rate scheduler do?',
+            options: [
+              'It changes how fast the model learns over time',
+              'It creates more data',
+              'It changes the number of labels',
+              'It deletes the loss function'
+            ],
+            correctIndex: 0,
+            explanation: 'A scheduler dynamically adjusts the optimizer step size (learning rate) as the training steps proceed.',
+            proSpeakerTip: 'It coordinates optimizer step velocity across training epochs to optimize convergent steps.'
+          },
+          {
+            question: 'Why might you lower the learning rate later in training?',
+            options: [
+              'To help the model fine-tune more carefully',
+              'To make the dataset smaller',
+              'To stop training completely',
+              'To reduce vocabulary size'
+            ],
+            correctIndex: 0,
+            explanation: 'Lowering step speed towards late epochs lets weights settle closely and precisely into narrow local minima.',
+            proSpeakerTip: 'Minimizing learning rate values near late stages promotes fine-grain parameter refinement.'
+          }
+        ],
+        enthusiast: [
+          {
+            question: 'What’s the difference between linear and cosine decay?',
+            options: [
+              'Linear is constant; cosine oscillates smoothly downward',
+              'Linear decays in a straight line; cosine decays smoothly following a cosine curve',
+              'They are identical',
+              'Cosine increases the LR forever'
+            ],
+            correctIndex: 1,
+            explanation: 'Linear decay reduces step-size in a rigid static line. Cosine decay curves down in an S-curve, preserving discovery time before easing to terminal bounds.',
+            proSpeakerTip: 'Cosine decay tracks half-cycle harmonic patterns to guarantee a highly civilized, smooth descent path.'
+          },
+          {
+            question: 'When do you usually call scheduler.step()?',
+            options: [
+              'Before loading the model',
+              'After the optimizer step, at the chosen cadence',
+              'Before the forward pass',
+              'Only during validation'
+            ],
+            correctIndex: 1,
+            explanation: 'Step size transformations are updated based on optimization steps completed, requiring step calls right after the weights update.',
+            proSpeakerTip: 'Synchronize scheduler steps following optimizer updates to ensure coordinate paces align precisely.'
+          },
+          {
+            question: 'What does eta_min mean in cosine annealing?',
+            options: [
+              'The smallest learning rate the scheduler will reach',
+              'The batch size',
+              'The number of epochs',
+              'The momentum value'
+            ],
+            correctIndex: 0,
+            explanation: 'eta_min defines the bounding lower floor value for the learning rate schedule, preventing step size from dropping entirely to absolute zero.',
+            proSpeakerTip: 'By bounding decay to eta_min, optimizer steps actively converge without completely stalling updates.'
+          }
+        ],
+        expert: [
+          {
+            question: 'Why can decaying the learning rate improve late-stage optimization?',
+            options: [
+              'It increases gradient variance',
+              'It allows coarse exploration early and finer parameter refinement later',
+              'It removes the need for initialization',
+              'It guarantees zero loss'
+            ],
+            correctIndex: 1,
+            explanation: 'High early learning rates help weights escape volatile poor minima. Small late rates allow precise, narrow step updates adjacent to global targets.',
+            proSpeakerTip: 'This trajectory structure matches structural optimization schedules to multi-stage convex convergence states.'
+          },
+          {
+            question: 'What is a common caution when using per-batch schedulers?',
+            options: [
+              'They cannot be used with GPUs',
+              'Their total step count must match the number of optimizer updates',
+              'They work only for validation loss',
+              'They require batch norm layers'
+            ],
+            correctIndex: 1,
+            explanation: 'Per-batch schedulers shift rates at every iteration. If step arrays are defined for total epochs instead, rates decay far too early.',
+            proSpeakerTip: 'We verify that steps-per-epoch iterations are correctly multiplied to construct uniform scheduler curves.'
+          }
+        ]
       }
     },
     {
@@ -352,39 +593,244 @@ export default function LingoBootcampView() {
       subtitle: 'Evaluating generalizability and underfit boundaries',
       icon: '📊',
       levels: {
-        layperson: {
-          question: 'What is the danger of "Overfitting" when training a custom AI model?',
-          options: [
-            'The graphics card consumes too much physical space on server chassis grids.',
-            'The model essentially memorizes the specific training questions card-by-card, scoring 100% on class exercises but failing to answer new questions it has not encountered before.',
-            'The AI becomes too smart and refuses to respond to basic questions.'
-          ],
-          correctIndex: 1,
-          explanation: 'Overfitting occurs when a neural model models training noise and quirks instead of generalized concepts. Holdout splits are critical diagnostic checks to test this.',
-          proSpeakerTip: 'Explain: "Overfitting represents a degradation in generalization capacity where the model over-indexes on training sample distribution noise."'
-        },
-        enthusiast: {
-          question: 'Why is a "Stratified" split crucial when separating highly unbalanced, specialized clinical datasets into train/validation blocks?',
-          options: [
-            'It splits files by exact text paragraph length to ensure training batch matrices remain perfectly squared.',
-            'It ensures the exact same proportion of target labels (e.g. rare diseases vs normal notes) is represented in both splits, preventing validation metrics from being biased or unrepresentative.',
-            'It forces all text data to undergo cryptographic hashing splits to protect patient privacy.'
-          ],
-          correctIndex: 1,
-          explanation: 'A normal random split might put all rare positive disease vectors into the validation set, meaning the training set misses this knowledge entirely and scoring remains skewed.',
-          proSpeakerTip: 'Describe as: "We enforced target label stratification across our data separation pipeline to maintain statistical consistency and isolate evaluation metrics."'
-        },
-        expert: {
-          question: 'When analyzing training loss versus validation loss plots, what does a rising U-shape in the validation curve represent while training loss continues to sink near zero?',
-          options: [
-            'The dynamic loss scaler is experiencing underflow truncation.',
-            'The model has entered the overfitting regime. The network is minimizing empirical risk on training samples by memorizing distribution-specific parameters, thereby losing entropy on unseen test distributions.',
-            'The model is in an underfitted state and needs immediate scaling of learning rates.'
-          ],
-          correctIndex: 1,
-          explanation: 'Rebounding validation loss indicates the model is separating further from general truth. It represents empirical risk alignment over generalization bounds, meaning the model is memorizing.',
-          proSpeakerTip: 'Quote: "The validation loss curve exhibited a classic divergence path post-epoch 8, signifying empirical risk minimization overfitting, which prompted early-stopping intervention at the minimum validation elbow."'
-        }
+        layperson: [
+          {
+            question: 'Why do we keep some data aside for validation?',
+            options: [
+              'To check how well the model handles new data',
+              'To make training faster',
+              'To reduce model size',
+              'To improve tokenization'
+            ],
+            correctIndex: 0,
+            explanation: 'Validation datasets evaluate if the model captures core concepts or simply memorized existing samples.',
+            proSpeakerTip: 'It serves as an unbiased proxy for out-of-distribution generalizability.'
+          },
+          {
+            question: 'What does overfitting mean?',
+            options: [
+              'The model does well on training data but poorly on new data',
+              'The model stops learning',
+              'The model uses too much memory',
+              'The optimizer is broken'
+            ],
+            correctIndex: 0,
+            explanation: 'Overtrained model weights replicate trivial patterns in the training samples, matching training targets while failing new tests.',
+            proSpeakerTip: 'Overfitting represents parameter customization targeting local noise over generalized latent spaces.'
+          }
+        ],
+        enthusiast: [
+          {
+            question: 'What mode should the model be in during validation?',
+            options: [
+              'train()',
+              'eval()',
+              'compile()',
+              'freeze()'
+            ],
+            correctIndex: 1,
+            explanation: 'Calling model.eval() switches off training variables, locking layers like dropout and batch normalization to make predictions consistent.',
+            proSpeakerTip: 'Set evaluation states to ensure stable, deterministic parameter response metrics.'
+          },
+          {
+            question: 'Why use torch.no_grad() during validation?',
+            options: [
+              'To make gradients larger',
+              'To save memory and avoid building backward graphs',
+              'To increase loss',
+              'To update the scheduler automatically'
+            ],
+            correctIndex: 1,
+            explanation: 'During validation we do not update weights or calculate derivatives. Disabling gradient tracking bypasses allocating temporary training matrices in VRAM.',
+            proSpeakerTip: 'Inhibiting gradient trace compilation caps memory overhead and accelerates validation throughput.'
+          },
+          {
+            question: 'What’s a sign of overfitting?',
+            options: [
+              'Training and validation losses both decrease',
+              'Training loss decreases while validation loss rises',
+              'Validation loss is always zero',
+              'The model has fewer parameters'
+            ],
+            correctIndex: 1,
+            explanation: 'When training loss decreases but validation loss increases, the model has begun memorizing local noise rather than generalizing.',
+            proSpeakerTip: 'This divergence marks the optimal elbow boundary for trigger and intervention models like early stopping.'
+          }
+        ],
+        expert: [
+          {
+            question: 'Why is a held-out validation set critical in model selection?',
+            options: [
+              'It guarantees generalization',
+              'It provides an unbiased proxy for out-of-sample performance during hyperparameter tuning',
+              'It increases training throughput',
+              'It replaces test data entirely'
+            ],
+            correctIndex: 1,
+            explanation: 'A held-out dataset guards optimization loops from parameter over-tuning, verifying general performance on unseen targets.',
+            proSpeakerTip: 'Evaluating against isolated validation splits isolates model selection from empirical parameter bias.'
+          },
+          {
+            question: 'Why must stochastic training-time behaviors be disabled during validation?',
+            options: [
+              'To ensure the optimizer is faster',
+              'To reduce evaluation variance and obtain deterministic-ish performance estimates',
+              'To improve tokenization',
+              'To increase GPU temperature'
+            ],
+            correctIndex: 1,
+            explanation: 'Stochastic behaviors (like Dropout randomized drop masks) introduce severe random noise. Disabling them returns uniform, reliable validation checks.',
+            proSpeakerTip: 'Deactivating random masks stabilizes predictions, guaranteeing accurate measurement of training states.'
+          }
+        ]
+      }
+    },
+    {
+      id: 'app_workflow',
+      title: '🏗️ Building a Training App',
+      subtitle: 'Managing background jobs and model validation states',
+      icon: '🏗️',
+      levels: {
+        layperson: [
+          {
+            question: 'What is the app’s job?',
+            options: [
+              'Let users set training options and start a training run',
+              'Replace the model with a spreadsheet',
+              'Remove the need for data',
+              'Make the GPU disappear'
+            ],
+            correctIndex: 0,
+            explanation: 'A training application serves as a control cockpit, enabling hyperparameter configuration, training execution, and metric visibility.',
+            proSpeakerTip: 'It bridges raw execution logs into highly structured, diagnostic visualizer boards.'
+          },
+          {
+            question: 'Why should training run in the background?',
+            options: [
+              'So the website doesn’t freeze while training',
+              'So the model trains less',
+              'So no one can see logs',
+              'So the UI can’t update'
+            ],
+            correctIndex: 0,
+            explanation: 'Deep learning steps are computationally heavy and long-lived. Executing training tasks asynchronously prevents blocking UI interaction.',
+            proSpeakerTip: 'Oversight threads must run asynchronously to maintain server-interface responsiveness during extreme training epochs.'
+          }
+        ],
+        enthusiast: [
+          {
+            question: 'What’s a good backend framework for this kind of app?',
+            options: [
+              'FastAPI',
+              'CSS',
+              'Excel',
+              'Markdown'
+            ],
+            correctIndex: 0,
+            explanation: 'FastAPI is a modern, high-speed Python backend web framework suited for managing task endpoints and streaming JSON responses.',
+            proSpeakerTip: 'Python web architectures maximize model orchestration speed through clean async task hooks.'
+          },
+          {
+            question: 'Why use a job queue or worker?',
+            options: [
+              'To make the UI prettier',
+              'To run long training tasks asynchronously',
+              'To remove the API server',
+              'To reduce dataset size'
+            ],
+            correctIndex: 1,
+            explanation: 'Workers (e.g. Celery or Redis Task Queues) retrieve and process long tasks outside the main API thread, managing concurrency and faults.',
+            proSpeakerTip: 'Asynchronous workers isolate system threads to handle long-running model executions reliably.'
+          },
+          {
+            question: 'What should the UI show during training?',
+            options: [
+              'Only the final model',
+              'Logs, losses, progress, and validation metrics',
+              'Just the dataset name',
+              'Nothing'
+            ],
+            correctIndex: 1,
+            explanation: 'Providing real-time updates of loss graphs, validation errors, and raw server logs is crucial for immediate diagnostic oversight.',
+            proSpeakerTip: 'Expose live stream metadata vectors to empower early termination analysis during training anomalies.'
+          }
+        ],
+        expert: [
+          {
+            question: 'Why is training typically separated from the request/response thread in an app?',
+            options: [
+              'To simplify tokenization',
+              'To avoid blocking the web server and to support long-running, fault-tolerant jobs',
+              'To make gradients smaller',
+              'To eliminate the need for checkpoints'
+            ],
+            correctIndex: 1,
+            explanation: 'Synchronous API routes timeout within seconds. Decoupling training keeps the web server agile while workers manage long pipelines.',
+            proSpeakerTip: 'Thread decoupling acts as standard architecture to guard API ingress pipelines from operational fatigue.'
+          },
+          {
+            question: 'What is a common design pattern for a training app backend?',
+            options: [
+              'Direct synchronous inference only',
+              'API server + job queue + worker process + persistent storage',
+              'One HTML page only',
+              'Client-side-only model training'
+            ],
+            correctIndex: 1,
+            explanation: 'The classic pattern uses an API server for controls, a persistent storage folder for logs/checkpoints, and worker nodes pulling tasks off a queue.',
+            proSpeakerTip: 'This modular topology allows horizontal scaling of physical compute clusters under heavy custom workloads.'
+          }
+        ]
+      }
+    },
+    {
+      id: 'bonus_mixed',
+      title: '🌟 Bonus Mixed Concept Quiz',
+      subtitle: 'Putting it all together',
+      icon: '🌟',
+      levels: {
+        layperson: [
+          {
+            question: 'Which feature helps stop training from going unstable?',
+            options: [
+              'Gradient clipping',
+              'Tokenization',
+              'Validation split',
+              'Browser cache'
+            ],
+            correctIndex: 0,
+            explanation: 'Gradient clipping keeps backprop step steps inside strict boundaries, preserving stability against massive surges.',
+            proSpeakerTip: 'An indispensable mathematical bumper preventing unstable gradient spikes from ruining convergence.'
+          }
+        ],
+        enthusiast: [
+          {
+            question: 'Which pair belongs together?',
+            options: [
+              'FP16 + GradScaler',
+              'BF16 + image resize',
+              'LoRA + tokenizer',
+              'Cosine scheduler + dropout only'
+            ],
+            correctIndex: 0,
+            explanation: 'FP16 has very thin numerical exponent limits, so using a GradScaler is required to escape underflow during backpropagation.',
+            proSpeakerTip: 'We enforce this pairing strictly within half-precision environments to defend fractional updates.'
+          }
+        ],
+        expert: [
+          {
+            question: 'Which sequence is correct for FP16 training?',
+            options: [
+              'step → backward → clip → autocast',
+              'autocast → scale(loss) → backward → unscale → clip → step → update',
+              'clip → forward → step → eval',
+              'eval → backward → scaler.update()'
+            ],
+            correctIndex: 1,
+            explanation: 'Wrap forward pass in autocast context, compute scaled loss backprop, unscale gradients safely, execute clipping norm, step the weights, and update scaling factors.',
+            proSpeakerTip: 'Our research pipeline conforms strictly to this optimization schema to ensure numerical integrity.'
+          }
+        ]
       }
     }
   ];
@@ -405,8 +851,9 @@ export default function LingoBootcampView() {
   // Concept quiz session variables
   const [selectedConcept, setSelectedConcept] = useState<ConceptQuiz>(conceptQuizzes[0]);
   const [activeDifficulty, setActiveDifficulty] = useState<'layperson' | 'enthusiast' | 'expert'>('layperson');
+  const [activeQuestionIdx, setActiveQuestionIdx] = useState<number>(0);
   const [userSelectedQuizOption, setUserSelectedQuizOption] = useState<number | null>(null);
-  const [quizScores, setQuizScores] = useState<Record<string, { layperson?: boolean; enthusiast?: boolean; expert?: boolean }>>({});
+  const [quizScores, setQuizScores] = useState<Record<string, boolean>>({});
   const [showExplanation, setShowExplanation] = useState<boolean>(false);
 
   const handleSelectDrill = (optIdx: number) => {
@@ -422,11 +869,10 @@ export default function LingoBootcampView() {
 
     // Add Concept Mastery Points (10 pts for each correct answer)
     let conceptPoints = 0;
-    const scoresArray = Object.values(quizScores) as Array<{ layperson?: boolean; enthusiast?: boolean; expert?: boolean }>;
-    scoresArray.forEach((levels) => {
-      if (levels.layperson) conceptPoints += 10;
-      if (levels.enthusiast) conceptPoints += 10;
-      if (levels.expert) conceptPoints += 10;
+    Object.keys(quizScores).forEach((key) => {
+      if (quizScores[key]) {
+        conceptPoints += 10;
+      }
     });
 
     return stageDrillPoints + conceptPoints;
@@ -438,22 +884,42 @@ export default function LingoBootcampView() {
     setShowExplanation(true);
 
     if (optIndex === correctIdx) {
-      setQuizScores(prev => {
-        const conceptScore = prev[selectedConcept.id] || {};
-        return {
-          ...prev,
-          [selectedConcept.id]: {
-            ...conceptScore,
-            [activeDifficulty]: true
-          }
-        };
-      });
+      const scoreKey = `${selectedConcept.id}:${activeDifficulty}:${activeQuestionIdx}`;
+      setQuizScores(prev => ({
+        ...prev,
+        [scoreKey]: true
+      }));
     }
   };
 
-  const currentQuestion: LevelQuestion = selectedConcept.levels[activeDifficulty];
+  const getCompletedQuestionsCount = (conceptId: string, level: 'layperson' | 'enthusiast' | 'expert') => {
+    const conceptObj = conceptQuizzes.find(c => c.id === conceptId);
+    if (!conceptObj) return 0;
+    const questionsList = conceptObj.levels[level] || [];
+    return questionsList.filter((_, idx) => quizScores[`${conceptId}:${level}:${idx}`]).length;
+  };
 
-  const totalPossiblePoints = (drillQuestions.length * 10) + (conceptQuizzes.length * 3 * 10);
+  const isLevelCleared = (conceptId: string, level: 'layperson' | 'enthusiast' | 'expert') => {
+    const conceptObj = conceptQuizzes.find(c => c.id === conceptId);
+    if (!conceptObj) return false;
+    const questionsList = conceptObj.levels[level] || [];
+    return questionsList.length > 0 && getCompletedQuestionsCount(conceptId, level) === questionsList.length;
+  };
+
+  const currentQuestions = selectedConcept.levels[activeDifficulty] || [];
+  const currentQuestion = currentQuestions[activeQuestionIdx] || currentQuestions[0] || {
+    question: "No question available",
+    options: [],
+    correctIndex: 0,
+    explanation: "N/A",
+    proSpeakerTip: "N/A"
+  };
+
+  const totalQuestionsNumber = conceptQuizzes.reduce((acc, q) => {
+    return acc + (q.levels.layperson?.length || 0) + (q.levels.enthusiast?.length || 0) + (q.levels.expert?.length || 0);
+  }, 0);
+
+  const totalPossiblePoints = (drillQuestions.length * 10) + (totalQuestionsNumber * 10);
 
   const generatedBuzzword = `${buzzPrefix} ${buzzRoot} ${buzzSuffix}`;
 
@@ -462,14 +928,7 @@ export default function LingoBootcampView() {
   };
 
   const getCompletedQuizCount = () => {
-    let count = 0;
-    const scoresArray = Object.values(quizScores) as Array<{ layperson?: boolean; enthusiast?: boolean; expert?: boolean }>;
-    scoresArray.forEach((levels) => {
-      if (levels.layperson) count++;
-      if (levels.enthusiast) count++;
-      if (levels.expert) count++;
-    });
-    return count;
+    return Object.values(quizScores).filter(Boolean).length;
   };
 
   return (
@@ -823,8 +1282,10 @@ export default function LingoBootcampView() {
 
             <div className="space-y-2">
               {conceptQuizzes.map((quiz) => {
-                const quizScore = quizScores[quiz.id] || {};
-                const completedLevelsCount = [quizScore.layperson, quizScore.enthusiast, quizScore.expert].filter(Boolean).length;
+                const isLaypersonCleared = isLevelCleared(quiz.id, 'layperson');
+                const isEnthusiastCleared = isLevelCleared(quiz.id, 'enthusiast');
+                const isExpertCleared = isLevelCleared(quiz.id, 'expert');
+                const completedLevelsCount = [isLaypersonCleared, isEnthusiastCleared, isExpertCleared].filter(Boolean).length;
 
                 return (
                   <button
@@ -832,6 +1293,8 @@ export default function LingoBootcampView() {
                     id={`concept-quiz-${quiz.id}`}
                     onClick={() => {
                       setSelectedConcept(quiz);
+                      setActiveDifficulty('layperson');
+                      setActiveQuestionIdx(0);
                       setUserSelectedQuizOption(null);
                       setShowExplanation(false);
                     }}
@@ -859,9 +1322,9 @@ export default function LingoBootcampView() {
 
                     {/* Progress indicators */}
                     <div className="flex gap-1 pt-1 border-t border-dashed border-gray-200/50">
-                      <span className={`w-2 h-2 rounded-full ${quizScore.layperson ? 'bg-green-500' : 'bg-gray-200'}`} />
-                      <span className={`w-2 h-2 rounded-full ${quizScore.enthusiast ? 'bg-amber-400' : 'bg-gray-200'}`} />
-                      <span className={`w-2 h-2 rounded-full ${quizScore.expert ? 'bg-red-500' : 'bg-gray-200'}`} />
+                      <span className={`w-2.5 h-2.5 rounded-full flex items-center justify-center text-[8px] ${isLaypersonCleared ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-500'}`} title="Layperson" />
+                      <span className={`w-2.5 h-2.5 rounded-full flex items-center justify-center text-[8px] ${isEnthusiastCleared ? 'bg-amber-400 text-[#33332D]' : 'bg-gray-200 text-gray-500'}`} title="Enthusiast" />
+                      <span className={`w-2.5 h-2.5 rounded-full flex items-center justify-center text-[8px] ${isExpertCleared ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-500'}`} title="Expert" />
                     </div>
                   </button>
                 );
@@ -895,7 +1358,7 @@ export default function LingoBootcampView() {
               <div className="flex gap-1 bg-[#EFEDE4]/60 p-1 rounded-lg border border-[#D5D3C7]">
                 {(['layperson', 'enthusiast', 'expert'] as const).map((difficulty) => {
                   const isDifficultyActive = activeDifficulty === difficulty;
-                  const isCorrect = !!(quizScores[selectedConcept.id]?.[difficulty]);
+                  const isCorrect = isLevelCleared(selectedConcept.id, difficulty);
                   
                   let colorClass = 'text-gray-500 hover:text-[#33332D]';
                   if (isDifficultyActive) {
@@ -912,6 +1375,7 @@ export default function LingoBootcampView() {
                       id={`diff-btn-${difficulty}`}
                       onClick={() => {
                         setActiveDifficulty(difficulty);
+                        setActiveQuestionIdx(0);
                         setUserSelectedQuizOption(null);
                         setShowExplanation(false);
                       }}
@@ -927,10 +1391,46 @@ export default function LingoBootcampView() {
 
             {/* The Question Card body */}
             <div className="space-y-4">
+              {/* Question dots step list navigation within level */}
+              {currentQuestions.length > 1 && (
+                <div className="flex gap-2 items-center justify-between bg-white px-3 py-2 rounded-xl border border-[#E5E3D8]">
+                  <div className="flex gap-1.5 items-center">
+                    <span className="text-[10px] font-mono text-gray-400 font-bold uppercase mr-1">Level Questions:</span>
+                    {currentQuestions.map((_, idx) => {
+                      const isCompleted = !!quizScores[`${selectedConcept.id}:${activeDifficulty}:${idx}`];
+                      const isCurrent = idx === activeQuestionIdx;
+                      return (
+                        <button
+                          key={idx}
+                          id={`question-dot-${idx}`}
+                          onClick={() => {
+                            setActiveQuestionIdx(idx);
+                            setUserSelectedQuizOption(null);
+                            setShowExplanation(false);
+                          }}
+                          className={`w-5.5 h-5.5 rounded-lg text-[10px] font-bold font-mono transition-all cursor-pointer flex items-center justify-center border ${
+                            isCurrent
+                              ? 'bg-[#33332D] text-[#FAF9F6] border-[#33332D]'
+                              : isCompleted
+                              ? 'bg-[#EAF2E8] text-[#3E6335] border-[#B2D8A6]'
+                              : 'bg-white text-gray-500 border-[#E5E3D8] hover:bg-gray-50'
+                          }`}
+                        >
+                          {idx + 1}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <span className="text-[10px] font-mono font-medium text-gray-400">
+                    Question {activeQuestionIdx + 1} of {currentQuestions.length}
+                  </span>
+                </div>
+              )}
+
               <div className="bg-white p-4 rounded-xl border border-[#E5E3D8] shadow-inner space-y-3">
                 <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#706F63]">
                   <HelpCircle className="w-4 h-4 text-[#8A9A5B]" />
-                  <span>Topic: {selectedConcept.subtitle}</span>
+                  <span>Topic: {selectedConcept.subtitle} (Q{activeQuestionIdx + 1}/{currentQuestions.length})</span>
                 </div>
                 <p className="text-sm font-serif font-bold text-[#33332D] leading-relaxed">
                   {currentQuestion.question}
@@ -1027,27 +1527,37 @@ export default function LingoBootcampView() {
                     </span>
                     <button
                       onClick={() => {
-                        // find next unfinished difficulty or next concept
-                        const currentQuizScore = quizScores[selectedConcept.id] || {};
-                        if (!currentQuizScore.layperson) {
-                          setActiveDifficulty('layperson');
-                        } else if (!currentQuizScore.enthusiast) {
-                          setActiveDifficulty('enthusiast');
-                        } else if (!currentQuizScore.expert) {
-                          setActiveDifficulty('expert');
+                        // If there is another question in this active level:
+                        if (activeQuestionIdx + 1 < currentQuestions.length) {
+                          setActiveQuestionIdx(prev => prev + 1);
                         } else {
-                          // select next concept
-                          const currentIndex = conceptQuizzes.findIndex(c => c.id === selectedConcept.id);
-                          const nextIndex = (currentIndex + 1) % conceptQuizzes.length;
-                          setSelectedConcept(conceptQuizzes[nextIndex]);
-                          setActiveDifficulty('layperson');
+                          // Try to find next unfinished difficulty, or move to next concept
+                          setActiveQuestionIdx(0);
+                          
+                          if (!isLevelCleared(selectedConcept.id, 'layperson')) {
+                            setActiveDifficulty('layperson');
+                          } else if (!isLevelCleared(selectedConcept.id, 'enthusiast')) {
+                            setActiveDifficulty('enthusiast');
+                          } else if (!isLevelCleared(selectedConcept.id, 'expert')) {
+                            setActiveDifficulty('expert');
+                          } else {
+                            // select next concept
+                            const currentIndex = conceptQuizzes.findIndex(c => c.id === selectedConcept.id);
+                            const nextIndex = (currentIndex + 1) % conceptQuizzes.length;
+                            setSelectedConcept(conceptQuizzes[nextIndex]);
+                            setActiveDifficulty('layperson');
+                          }
                         }
                         setUserSelectedQuizOption(null);
                         setShowExplanation(false);
                       }}
                       className="bg-[#33332D] hover:bg-[#55534C] text-[#FAF9F6] font-bold text-xs py-2 px-4 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer shadow-sm hover:translate-x-0.5"
                     >
-                      Next Core Drill <ArrowRight className="w-3.5 h-3.5" />
+                      {activeQuestionIdx + 1 < currentQuestions.length ? (
+                        <>Next Question <ArrowRight className="w-3.5 h-3.5" /></>
+                      ) : (
+                        <>Next Core Drill <ArrowRight className="w-3.5 h-3.5" /></>
+                      )}
                     </button>
                   </div>
                 </motion.div>
